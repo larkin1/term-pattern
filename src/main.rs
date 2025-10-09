@@ -30,7 +30,7 @@ impl Array {
 
 // Algorithms
 impl Array {
-    fn perlin() {
+    fn perlin(detail: u16, width: usize, height: usize) {
         let arr = Array::new(width, height);
 
     }
