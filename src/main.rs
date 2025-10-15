@@ -242,11 +242,12 @@ impl Array3D {
 
 // Rendering the algorithms
 fn main() {
-    let arr_x = 70;
-    let arr_y = 35;
+    let (x, y) = termion::terminal_size().unwrap();
+    let arr_x = x as u32;
+    let arr_y = y as u32;
     let detail = 10;
     let arr_z = 2000;
-    let dewarp = 1.0/2.2;
+    let dewarp = 1.0/2.2; // aspect ratio of each "pixel" to negate stretching.
     // let items: [&str; 5] = [" ", ".", "-", "+", "#"];
     let items: [&str; 5] = [" ", "░", "▒", "▓", "█"];
     let frame_time = Duration::from_millis(33);
