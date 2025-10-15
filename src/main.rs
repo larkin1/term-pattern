@@ -4,6 +4,7 @@ use std::io::{self, Write};
 
 use rand::Rng;
 use clap::Parser;
+use crossterm::terminal::{size};
 
 // Reminder: x is the lowest level in Array3D.
 // This means it is: [z[y[x[val]]]] or val = array[z][y][x].
@@ -266,8 +267,7 @@ struct Args {
 // Rendering the algorithms
 fn main() {
     let args = Args::parse();
-
-    let (x, y) = termion::terminal_size().unwrap();
+    let (x, y) = size().unwrap();
     let arr_x = x as u32;
     let arr_y = y as u32;
     let detail = args.detail;
