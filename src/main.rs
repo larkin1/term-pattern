@@ -31,42 +31,47 @@ impl Array {
     fn set(&mut self, x: usize, y: usize, val: u16) -> () {
         self.data[y][x] = val;
     }
-    /*
-    fn get_coord(&self, coordinate: Coordinate) -> u16 {
-        self.data[coordinate.y][coordinate.x]
-    }
-
-    fn set_coord(&mut self, coordinate: Coordinate, val: u16) -> () {
-        self.data[coordinate.y][coordinate.x] = val;
-    }
-    */
 }
 
 impl Array {
-    fn perlin(detail: u16, width: usize, height: usize) -> Array {
+    fn perlin(
+        detail: u16, 
+        aspect_ratio:f32, 
+        width: usize, 
+        height: usize
+    ) -> Array {
         fn fade(t: f32) -> f32 { t * t * t * (t * (t * 6.0 - 15.0) + 10.0) }
         fn lerp(a: f32, b: f32, t: f32) -> f32 { a + t * (b - a) }
         fn dot(ax: f32, ay: f32, bx: f32, by: f32) -> f32 { ax * bx + ay * by }
 
-        let x_cells = (width as f32 / detail as f32).ceil() as usize + 1;
-        let y_cells = (height as f32 / detail as f32).ceil() as usize + 1;
+        let x_cells = (
+                width as f32 / detail as f32
+            ).ceil() as usize + 1;
+        let y_cells = (
+                height as f32 / (detail as f32*aspect_ratio)
+            ).ceil() as usize + 1;
 
         let mut grad_x = Array::new(x_cells, y_cells);
         let mut grad_y = Array::new(x_cells, y_cells);
         for y in 0..y_cells {
             for x in 0..x_cells {
-                let angle = rand::rng().random_range(0.0..std::f32::consts::TAU);
+                let angle = rand::rng().random_range(
+                    0.0..std::f32::consts::TAU
+                );
                 grad_x.set(x, y, (angle.cos() * 1000.0) as u16);
                 grad_y.set(x, y, (angle.sin() * 1000.0) as u16);
             }
         }
 
         let mut arr = Array::new(width, height);
+        let mut raw = vec![vec![0.0_f32; width]; height];
+        let mut min_val = f32::MAX;
+        let mut max_val = f32::MIN;
 
         for y in 0..height {
             for x in 0..width {
                 let fx = x as f32 / detail as f32;
-                let fy = y as f32 / detail as f32;
+                let fy = y as f32 / (detail as f32)*aspect_ratio;
 
                 let x0 = fx.floor() as usize;
                 let y0 = fy.floor() as usize;
@@ -105,7 +110,18 @@ impl Array {
                 let ix1 = lerp(d2, d3, u);
                 let value = lerp(ix0, ix1, v);
 
-                let final_value = (((value + 1.0) * 0.5 * 14.0)-5.0) as u16;
+                raw[y][x] = value;
+
+                if value < min_val { min_val = value; }
+                if value > max_val { max_val = value; }
+            }
+        }
+
+        for y in 0..height {
+            for x in 0..width {
+                let v = raw[y][x];
+                let norm = (v - min_val) / (max_val - min_val);
+                let final_value = (norm * 4.0).round() as u16;
                 arr.set(x, y, final_value);
             }
         }
@@ -117,8 +133,9 @@ impl Array {
 fn main() {
     let arr_x = 70;
     let arr_y = 30;
-    let detail = 5;
-    let items: [&str; 5] = [".", "-", "+", "#" ,"@"];
+    let detail = 8;
+    let dewarp = 1.0/1.9;
+    let items: [&str; 5] = [" ", ".", "-", "+", "#"];
     let frame_time = Duration::from_millis(33);
 
     loop {
@@ -126,7 +143,7 @@ fn main() {
 
         // I know x and y are the wrong way around, 
         // but it's gonna be a PITA to fix so deal.
-        let array = Array::perlin(detail, arr_y, arr_x);
+        let array = Array::perlin(detail, dewarp,arr_y, arr_x);
 
         let mut output = String::with_capacity(
             (arr_x as usize + 1) * arr_y as usize
