@@ -1,7 +1,9 @@
 use std::thread;
 use std::time::{Duration, Instant};
-use rand::Rng;
 use std::io::{self, Write};
+
+use rand::Rng;
+use clap::Parser;
 
 // Reminder: x is the lowest level in Array3D.
 // This means it is: [z[y[x[val]]]] or val = array[z][y][x].
@@ -240,18 +242,40 @@ impl Array3D {
     }
 }
 
+#[derive(Parser, Debug)]
+struct Args {
+    /// Change the level of detail for the perlin algorithm
+    #[arg(short, long, default_value_t = 30)]
+    detail: u32,
+    /// Change the number of frames
+    #[arg(short, long, default_value_t = 5000)]
+    frames: u32,
+    /// Change the speed at which the animation plays
+    #[arg(short, long, default_value_t = 0.2)]
+    speed: f32,
+    /// Modify the perlin simulation to account for the ratio of the chars
+    /// in the font you are using. eg --dewarp 2 accounts for a ratio of
+    /// 1/2 or 1:2
+    #[arg(short, long, default_value_t = 2.2)]
+    dewarp: f32,
+    /// Change the target framerate for the program
+    #[arg(short, long, default_value_t = 30)]
+    framerate: u8,
+}
+
 // Rendering the algorithms
 fn main() {
+    let args = Args::parse();
+
     let (x, y) = termion::terminal_size().unwrap();
     let arr_x = x as u32;
     let arr_y = y as u32;
-    let detail = 10;
-    let arr_z = 2000;
-    let dewarp = 1.0/2.2; // aspect ratio of each "pixel" to negate stretching.
-    // let items: [&str; 5] = [" ", ".", "-", "+", "#"];
+    let detail = args.detail;
+    let arr_z = args.frames;
+    let dewarp = 1.0/args.dewarp;
     let items: [&str; 5] = [" ", "░", "▒", "▓", "█"];
-    let frame_time = Duration::from_millis(33);
-    let speed_scale = 0.2;
+    let frame_time = Duration::from_millis(1000/args.framerate as u64);
+    let speed_scale = args.speed;
 
     let volume = Array3D::perlin_3D(
         detail,
@@ -290,7 +314,9 @@ fn main() {
                     items[val as usize]
                 );
             }
-            output.push('\n');
+            if row != arr_y-1 {
+                output.push('\n');
+            }
         }
 
         print!("\x1B[2J\x1B[H{}", output);
