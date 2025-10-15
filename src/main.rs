@@ -125,7 +125,6 @@ impl Array {
                 arr.set(x, y, final_value);
             }
         }
-
         arr
     }
 }
@@ -143,7 +142,12 @@ fn main() {
 
         // I know x and y are the wrong way around, 
         // but it's gonna be a PITA to fix so deal.
-        let array = Array::perlin(detail, dewarp,arr_y, arr_x);
+        let array = Array::perlin(
+            detail,
+            dewarp,
+            arr_y, 
+            arr_x
+        );
 
         let mut output = String::with_capacity(
             (arr_x as usize + 1) * arr_y as usize
