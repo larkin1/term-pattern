@@ -246,7 +246,7 @@ fn main() {
     let arr_y = 35;
     let detail = 10;
     let arr_z = 2000;
-    let dewarp = 1.0/1.9;
+    let dewarp = 1.0/2.2;
     // let items: [&str; 5] = [" ", ".", "-", "+", "#"];
     let items: [&str; 5] = [" ", "░", "▒", "▓", "█"];
     let frame_time = Duration::from_millis(33);
