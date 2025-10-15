@@ -62,10 +62,24 @@ impl Array3D {
 // rendered, so heavy algorithms cause a wait time at the start of the program.
 impl Array3D {
     #[allow(non_snake_case)]
-    fn perlin_3D(detail: u32, dewarp:f32, speed_scale:f32, x_size: u32, y_size: u32, z_size: u32) -> Self {
+    fn perlin_3D(
+        detail: u32,
+        dewarp:f32,
+        speed_scale:f32,
+        x_size: u32,
+        y_size: u32,
+        z_size: u32
+    ) -> Self {
         fn fade(t: f32) -> f32 { t * t * t * (t * (t * 6.0 - 15.0) + 10.0) }
         fn lerp(a: f32, b: f32, t: f32) -> f32 { a + t * (b - a) }
-        fn dot(ax: f32, ay: f32, az: f32, bx: f32, by: f32, bz: f32) -> f32 { ax * bx + ay * by + az * bz }
+        fn dot(
+            ax: f32,
+            ay: f32,
+            az: f32,
+            bx: f32,
+            by: f32,
+            bz: f32
+        ) -> f32 { ax * bx + ay * by + az * bz }
 
         let x_size_usize = x_size as usize;
         let y_size_usize = y_size as usize;
@@ -73,13 +87,37 @@ impl Array3D {
 
         let mut vol = Array3D::new(x_size_usize, y_size_usize, z_size_usize);
 
-        let gx_cells = (x_size as f32 / detail as f32).ceil() as usize + 1;
-        let gy_cells = (y_size as f32 / (detail as f32 * dewarp)).ceil() as usize + 1;
-        let gz_cells = (z_size as f32 / detail as f32).ceil() as usize + 1;
+        let gx_cells = (
+            x_size as f32 / detail as f32
+        ).ceil() as usize + 1;
+        let gy_cells = (
+            y_size as f32 / (detail as f32 * dewarp)
+        ).ceil() as usize + 1;
+        let gz_cells = (
+            z_size as f32 / detail as f32
+        ).ceil() as usize + 1;
 
-        let mut grad_x = vec![vec![vec![0.0_f32; gz_cells]; gy_cells]; gx_cells];
-        let mut grad_y = vec![vec![vec![0.0_f32; gz_cells]; gy_cells]; gx_cells];
-        let mut grad_z = vec![vec![vec![0.0_f32; gz_cells]; gy_cells]; gx_cells];
+        let mut grad_x = vec![
+            vec![
+                vec![
+                    0.0_f32; gz_cells
+                ]; gy_cells
+            ]; gx_cells
+        ];
+        let mut grad_y = vec![
+            vec![
+                vec![
+                    0.0_f32; gz_cells
+                ]; gy_cells
+            ]; gx_cells
+        ];
+        let mut grad_z = vec![
+            vec![
+                vec![
+                    0.0_f32; gz_cells
+                ]; gy_cells
+            ]; gx_cells
+        ];
 
         for gx in 0..gx_cells {
             for gy in 0..gy_cells {
@@ -136,14 +174,38 @@ impl Array3D {
                     let (gx011, gy011, gz011) = G!(x0, y1, z1);
                     let (gx111, gy111, gz111) = G!(x1, y1, z1);
 
-                    let i000 = dot(gx000, gy000, gz000, dx, dy, dz);
-                    let i100 = dot(gx100, gy100, gz100, dx - 1.0, dy, dz);
-                    let i010 = dot(gx010, gy010, gz010, dx, dy - 1.0, dz);
-                    let i110 = dot(gx110, gy110, gz110, dx - 1.0, dy - 1.0, dz);
-                    let i001 = dot(gx001, gy001, gz001, dx, dy, dz - 1.0);
-                    let i101 = dot(gx101, gy101, gz101, dx - 1.0, dy, dz - 1.0);
-                    let i011 = dot(gx011, gy011, gz011, dx, dy - 1.0, dz - 1.0);
-                    let i111 = dot(gx111, gy111, gz111, dx - 1.0, dy - 1.0, dz - 1.0);
+                    let i000 = dot(
+                        gx000, gy000, gz000,
+                        dx, dy, dz
+                    );
+                    let i100 = dot(
+                        gx100, gy100, gz100,
+                        dx - 1.0, dy, dz
+                    );
+                    let i010 = dot(
+                        gx010, gy010, gz010,
+                        dx, dy - 1.0, dz
+                    );
+                    let i110 = dot(
+                        gx110, gy110, gz110,
+                        dx - 1.0, dy - 1.0, dz
+                    );
+                    let i001 = dot(
+                        gx001, gy001, gz001,
+                        dx, dy, dz - 1.0
+                    );
+                    let i101 = dot(
+                        gx101, gy101, gz101,
+                        dx - 1.0, dy, dz - 1.0
+                    );
+                    let i011 = dot(
+                        gx011, gy011, gz011,
+                        dx, dy - 1.0, dz - 1.0
+                    );
+                    let i111 = dot(
+                        gx111, gy111, gz111,
+                        dx - 1.0, dy - 1.0, dz - 1.0
+                    );
 
                     let u = fade(dx);
                     let v = fade(dy);
@@ -198,19 +260,22 @@ fn main() {
         arr_y,
         arr_z,
     );
-
+    let mut reverse = false;
     let mut i = 0;
     loop {
-        if i >= arr_z {
+        if i >= arr_z-1 {
             // break;
-            i=0;
+            // i=0;
+            reverse=true;
+        } else if i <= 0 {
+            reverse=false;
         }
+
+        if reverse {i-=1;} else {i+=1;}
 
         let t_start = Instant::now();
 
         let array = &volume.data[i as usize];
-
-        i+=1;
 
         let mut output = String::with_capacity(
             (arr_x as usize + 1) * arr_y as usize
@@ -228,6 +293,7 @@ fn main() {
         }
 
         print!("\x1B[2J\x1B[H{}", output);
+
         io::stdout().flush().unwrap();
 
         let elapsed = t_start.elapsed();
