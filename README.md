@@ -1,6 +1,9 @@
 # Term-Pattern
 
-Just playing around with some generative ascii art ideas... more of a way to wrap my head around rust than anything else.
+Just playing around with some generative ascii art ideas... more of a way to wrap my head around rust than anything else.  
+
+Also apparently a potential epilepsy hazard!   
+Depending on what terminal you run it in (eg windows cmd), this program can do some serious flashing... so beware ig :slightly_smiling_face:  
 
 ## Run Term-Pattern as a wallpaper:
 
@@ -12,3 +15,4 @@ Linux (idk about compatability lol it works on hyprland):
 
 This seems to be pretty lightweight... ~0.8W GPU usage, but i'm happy to be proven wrong here... I can't see how rendering 30fps in the terminal would be a huge problem.    
 Regarding compatability... i don't think that will be an issue for my code, but the panel kitten could be problematic. see [here](https://sw.kovidgoyal.net/kitty/kittens/panel/) for more info on that.
+
